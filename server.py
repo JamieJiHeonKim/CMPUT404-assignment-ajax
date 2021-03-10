@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-# Copyright 2013 Abram Hindle
+# Copyright 2013 Abram Hindle, Ji Heon Kim
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 
 
 import flask
-from flask import Flask, request
+from flask import Flask, request, redirect
 import json
 app = Flask(__name__)
 app.debug = True
@@ -74,27 +74,35 @@ def flask_post_json():
 @app.route("/")
 def hello():
     '''Return something coherent here.. perhaps redirect to /static/index.html '''
-    return None
+    # stackoverflow.com/questions/14343812/redirecting-to-url-in-flask
+    return redirect("http://127.0.0.1:5000/static/index.html",code=302)
 
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
     '''update the entities via this interface'''
-    return None
+    value = flask_post_json()
+    myWorld.set(entity, value)
+    pair = myWorld.get(entity)
+    return json.dumps(pair)
 
 @app.route("/world", methods=['POST','GET'])    
 def world():
     '''you should probably return the world here'''
-    return None
+    isDict = myWorld.world()
+    return json.dumps(isDict)
 
 @app.route("/entity/<entity>")    
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
-    return None
+    pair = myWorld.get(entity)
+    return json.dumps(pair)
 
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     '''Clear the world out!'''
-    return None
+    myWorld.clear()
+    emptyWorld = myWorld.world()
+    return json.dumps(emptyWorld)
 
 if __name__ == "__main__":
     app.run()
